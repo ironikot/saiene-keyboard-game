@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "saiene-da",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/Users/tokinorishimodaira/Desktop/outof-work/saiene-da/server.js"],
+      "port": 4173
+    }
+  ]
+}

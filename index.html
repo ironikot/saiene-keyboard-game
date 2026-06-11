@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>再エネ打 — 再生可能エネルギー タイピングゲーム</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== スタート画面 ===== -->
+    <section id="screen-start" class="screen active">
+      <div class="hero">
+        <h1 class="title">再エネ打<span class="title-en">SAIENE&#8209;DA</span></h1>
+        <p class="tagline">流れてくる再エネ用語を、ローマ字でどんどん打って発電しよう！⚡</p>
+      </div>
+
+      <div class="courses">
+        <button class="course-card" data-course="easy">
+          <span class="course-emoji">🌱</span>
+          <span class="course-name">お手軽コース</span>
+          <span class="course-desc">10問・かんたん</span>
+          <span class="course-target">目標 3,000 kWh</span>
+        </button>
+        <button class="course-card recommend" data-course="normal">
+          <span class="badge">おすすめ</span>
+          <span class="course-emoji">⚡</span>
+          <span class="course-name">お勧めコース</span>
+          <span class="course-desc">15問・ふつう</span>
+          <span class="course-target">目標 5,000 kWh</span>
+        </button>
+        <button class="course-card" data-course="hard">
+          <span class="course-emoji">👑</span>
+          <span class="course-name">達人コース</span>
+          <span class="course-desc">20問・むずかしい</span>
+          <span class="course-target">目標 10,000 kWh</span>
+        </button>
+      </div>
+
+      <div class="howto">
+        <h2>あそびかた</h2>
+        <ul>
+          <li>ベルトコンベアで流れてくるお題（再エネ用語）を、画面下のローマ字どおりに入力します。</li>
+          <li>お皿が左端に届く前に打ち切ると「発電」成功。取り逃すと失点です。</li>
+          <li><code>し=shi/si</code>、<code>じゃ=ja/jya/zya</code> など複数のローマ字に対応。<code>っ</code>促音・<code>ー</code>長音もOK。</li>
+          <li>入力は半角英数（IME はオフ）でどうぞ。</li>
+        </ul>
+      </div>
+
+      <div class="start-foot">
+        <button id="sound-toggle" class="ghost-btn" aria-pressed="true">🔊 音あり</button>
+      </div>
+    </section>
+
+    <!-- ===== ゲーム画面 ===== -->
+    <section id="screen-game" class="screen">
+      <header class="hud">
+        <div class="hud-item"><span class="hud-label">コース</span><span id="hud-course" class="hud-val">-</span></div>
+        <div class="hud-item"><span class="hud-label">お題</span><span class="hud-val"><b id="hud-index">0</b> / <span id="hud-total">0</span></span></div>
+        <div class="hud-item"><span class="hud-label">発電量</span><span class="hud-val"><b id="hud-power">0</b> kWh</span></div>
+        <div class="hud-item"><span class="hud-label">正打</span><span id="hud-correct" class="hud-val">0</span></div>
+        <div class="hud-item"><span class="hud-label">ミス</span><span id="hud-miss" class="hud-val">0</span></div>
+        <button id="quit" class="ghost-btn small">やめる</button>
+      </header>
+
+      <div class="stage">
+        <div id="countdown" class="countdown"></div>
+
+        <div class="conveyor">
+          <div class="sky"></div>
+          <div id="gain-pop" class="gain-pop"></div>
+          <div id="plate" class="plate">
+            <span id="plate-icon" class="plate-icon">☀️</span>
+            <span id="plate-label" class="plate-label"></span>
+          </div>
+          <div class="belt">
+            <div class="belt-stripes"></div>
+            <div class="goal">🏭</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="typing">
+        <div id="reading" class="reading"></div>
+        <div id="guide" class="guide"></div>
+        <div class="timebar"><div id="timebar-fill" class="timebar-fill"></div></div>
+      </div>
+    </section>
+
+    <!-- ===== リザルト画面 ===== -->
+    <section id="screen-result" class="screen">
+      <h2 class="result-title">結果発表 ⚡</h2>
+
+      <div class="rank-box">
+        <div id="r-rank-icon" class="rank-icon">🏆</div>
+        <div class="rank-text">
+          <div id="r-rank-title" class="rank-title">-</div>
+          <div id="r-rank-msg" class="rank-msg">-</div>
+        </div>
+      </div>
+
+      <div class="power-box">
+        <div class="power-main"><span class="power-label">発電量</span><span id="r-power" class="power-val">0 kWh</span></div>
+        <div class="power-sub">目標 <span id="r-target">0 kWh</span></div>
+        <div id="r-balance" class="balance">-</div>
+        <div class="power-co2">削減した CO₂ ：<span id="r-co2">0 t-CO₂</span></div>
+      </div>
+
+      <div class="result-grid">
+        <div class="cell"><span class="cell-label">クリア問題</span><span id="r-done" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">取り逃し</span><span id="r-missed" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">正しく打ったキー</span><span id="r-correct" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">ミスタイプ</span><span id="r-misskey" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">正確率</span><span id="r-acc" class="cell-val">0%</span></div>
+        <div class="cell"><span class="cell-label">平均速度</span><span id="r-kps" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">タイム</span><span id="r-time" class="cell-val">0秒</span></div>
+      </div>
+
+      <div class="result-actions">
+        <button id="again" class="primary-btn">もう一度（同じコース）</button>
+        <button id="to-menu" class="ghost-btn">コース選択へ</button>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="site-foot">
+    再エネ打 — 再生可能エネルギーをテーマにしたオリジナルのタイピングゲーム
+  </footer>
+
+  <script src="js/audio.js"></script>
+  <script src="js/romaji.js"></script>
+  <script src="js/words.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
