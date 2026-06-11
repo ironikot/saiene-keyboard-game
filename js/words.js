@@ -57,6 +57,11 @@
     { label: "卒業", reading: "そつぎょう", icon: "🎓" },
     { label: "潮流発電", reading: "ちょうりゅうはつでん", icon: "🌊" },
     { label: "化石燃料", reading: "かせきねんりょう", icon: "🛢️" },
+    // JERA Cross 公式サイト由来の公開用語（標準コースに彩りを追加）
+    { label: "環境価値", reading: "かんきょうかち", icon: "♻️" },
+    { label: "非化石証書", reading: "ひかせきしょうしょ", icon: "📜" },
+    { label: "自己託送", reading: "じこたくそう", icon: "🚚" },
+    { label: "電力調達", reading: "でんりょくちょうたつ", icon: "🛒" },
   ];
 
   const HARD = [
@@ -80,13 +85,43 @@
     { label: "エネルギー転換", reading: "えねるぎーてんかん", icon: "🔄" },
     { label: "送配電網", reading: "そうはいでんもう", icon: "🗼" },
     { label: "炭素中立", reading: "たんそちゅうりつ", icon: "🟢" },
+    // JERA Cross 公式サイト由来の公開用語（達人コースに彩りを追加）
+    { label: "カーボンフリー電力", reading: "かーぼんふりーでんりょく", icon: "🟢" },
+    { label: "エネルギーソリューション", reading: "えねるぎーそりゅーしょん", icon: "🔧" },
+    { label: "非化石価値取引", reading: "ひかせきかちとりひき", icon: "💹" },
+  ];
+
+  // 事業用語（JERA Cross 公式サイト https://www.jera-cross.com/ より）
+  // すべて公開情報。脱炭素・再エネ調達まわりの「ちょっと玄人な」用語を集めたコース。
+  const BUSINESS = [
+    { label: "脱炭素", reading: "だつたんそ", icon: "🌍" },
+    { label: "環境価値", reading: "かんきょうかち", icon: "♻️" },
+    { label: "非化石証書", reading: "ひかせきしょうしょ", icon: "📜" },
+    { label: "オンサイト", reading: "おんさいと", icon: "🏠" },
+    { label: "オフサイト", reading: "おふさいと", icon: "🌄" },
+    { label: "自己託送", reading: "じこたくそう", icon: "🚚" },
+    { label: "電力調達", reading: "でんりょくちょうたつ", icon: "🛒" },
+    { label: "発電計画", reading: "はつでんけいかく", icon: "📅" },
+    { label: "発電設備", reading: "はつでんせつび", icon: "🏭" },
+    { label: "電力小売", reading: "でんりょくこうり", icon: "🏪" },
+    { label: "インバランス精算", reading: "いんばらんすせいさん", icon: "⚖️" },
+    { label: "再エネアグリ", reading: "さいえねあぐり", icon: "🌾" },
+    { label: "グリーン電力", reading: "ぐりーんでんりょく", icon: "💚" },
+    { label: "カーボンフリー電力", reading: "かーぼんふりーでんりょく", icon: "🟢" },
+    { label: "非化石価値取引", reading: "ひかせきかちとりひき", icon: "💹" },
+    { label: "エネルギーマネジメント", reading: "えねるぎーまねじめんと", icon: "📊" },
+    { label: "エネルギーソリューション", reading: "えねるぎーそりゅーしょん", icon: "🔧" },
+    { label: "脱炭素プレミアム", reading: "だつたんそぷれみあむ", icon: "💎" },
+    { label: "脱炭素ロードマップ", reading: "だつたんそろーどまっぷ", icon: "🗺️" },
+    { label: "グリーントランスフォーメーション", reading: "ぐりーんとらんすふぉーめーしょん", icon: "🔄" },
   ];
 
   const COURSES = {
     easy: { name: "お手軽コース", desc: "10問・かんたん", count: 10, pool: EASY, speed: 1.0, power: 3000 },
     normal: { name: "お勧めコース", desc: "15問・ふつう", count: 15, pool: NORMAL.concat(EASY), speed: 1.25, power: 5000 },
     hard: { name: "達人コース", desc: "20問・むずかしい", count: 20, pool: HARD.concat(NORMAL), speed: 1.55, power: 10000 },
+    business: { name: "事業用語コース", desc: "18問・実戦", count: 18, pool: BUSINESS, speed: 1.2, power: 8000 },
   };
 
-  global.Words = { EASY, NORMAL, HARD, COURSES };
+  global.Words = { EASY, NORMAL, HARD, BUSINESS, COURSES };
 })(window);
