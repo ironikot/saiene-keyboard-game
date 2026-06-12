@@ -43,6 +43,7 @@ node server.js
 | `js/audio.js` | 効果音（WebAudio で合成。外部素材なし） |
 | `js/game.js` | ゲーム本体（進行・スコア・演出の制御） |
 | `server.js` | ローカル確認用の簡易静的サーバー |
+| `favicon.svg` / `favicon.ico` / `apple-touch-icon.png` | サイトアイコン（PNG/ICO は `tools/make_favicon.py` で生成） |
 
 ## カスタマイズ
 

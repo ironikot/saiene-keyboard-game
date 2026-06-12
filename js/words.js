@@ -32,6 +32,19 @@
     { label: "電源", reading: "でんげん", icon: "🔘" },
     { label: "出力", reading: "しゅつりょく", icon: "📈" },
     { label: "余剰", reading: "よじょう", icon: "➕" },
+    // JERA Cross 公式サイト由来の公開用語
+    { label: "再エネ", reading: "さいえね", icon: "♻️" },
+    { label: "充電", reading: "じゅうでん", icon: "🔌" },
+    { label: "放電", reading: "ほうでん", icon: "⚡" },
+    { label: "売電", reading: "ばいでん", icon: "💴" },
+    { label: "託送", reading: "たくそう", icon: "🚚" },
+    { label: "系統", reading: "けいとう", icon: "🗼" },
+    { label: "市場", reading: "しじょう", icon: "💹" },
+    { label: "需要", reading: "じゅよう", icon: "📈" },
+    { label: "供給", reading: "きょうきゅう", icon: "📦" },
+    { label: "予測", reading: "よそく", icon: "🔮" },
+    { label: "火力", reading: "かりょく", icon: "🔥" },
+    { label: "オフセット", reading: "おふせっと", icon: "🌿" },
   ];
 
   const NORMAL = [
@@ -62,6 +75,18 @@
     { label: "非化石証書", reading: "ひかせきしょうしょ", icon: "📜" },
     { label: "自己託送", reading: "じこたくそう", icon: "🚚" },
     { label: "電力調達", reading: "でんりょくちょうたつ", icon: "🛒" },
+    { label: "電力市場", reading: "でんりょくしじょう", icon: "💹" },
+    { label: "容量市場", reading: "ようりょうしじょう", icon: "🏛️" },
+    { label: "調整電源", reading: "ちょうせいでんげん", icon: "🎚️" },
+    { label: "電源構成", reading: "でんげんこうせい", icon: "🧩" },
+    { label: "水素発電", reading: "すいそはつでん", icon: "💨" },
+    { label: "アンモニア", reading: "あんもにあ", icon: "🧪" },
+    { label: "需要予測", reading: "じゅようよそく", icon: "🔮" },
+    { label: "数理最適化", reading: "すうりさいてきか", icon: "🧮" },
+    { label: "機械学習", reading: "きかいがくしゅう", icon: "🤖" },
+    { label: "充放電", reading: "じゅうほうでん", icon: "🔁" },
+    { label: "遠隔制御", reading: "えんかくせいぎょ", icon: "🎛️" },
+    { label: "アグリゲーター", reading: "あぐりげーたー", icon: "🧲" },
   ];
 
   const HARD = [
@@ -89,6 +114,17 @@
     { label: "カーボンフリー電力", reading: "かーぼんふりーでんりょく", icon: "🟢" },
     { label: "エネルギーソリューション", reading: "えねるぎーそりゅーしょん", icon: "🔧" },
     { label: "非化石価値取引", reading: "ひかせきかちとりひき", icon: "💹" },
+    { label: "再エネアグリゲーション", reading: "さいえねあぐりげーしょん", icon: "🧲" },
+    { label: "ゼロエミッション", reading: "ぜろえみっしょん", icon: "🌫️" },
+    { label: "電力トラッキング", reading: "でんりょくとらっきんぐ", icon: "📍" },
+    { label: "系統用蓄電池", reading: "けいとうようちくでんち", icon: "🔋" },
+    { label: "充放電制御", reading: "じゅうほうでんせいぎょ", icon: "🎛️" },
+    { label: "高精度予測", reading: "こうせいどよそく", icon: "🎯" },
+    { label: "リアルタイム最適化", reading: "りあるたいむさいてきか", icon: "⚙️" },
+    { label: "サプライチェーン", reading: "さぷらいちぇーん", icon: "🔗" },
+    { label: "トレーサビリティ", reading: "とれーさびりてぃ", icon: "🔍" },
+    { label: "次世代電源", reading: "じせだいでんげん", icon: "🚀" },
+    { label: "電源開発", reading: "でんげんかいはつ", icon: "🏗️" },
   ];
 
   // 事業用語（JERA Cross 公式サイト https://www.jera-cross.com/ より）
@@ -114,6 +150,21 @@
     { label: "脱炭素プレミアム", reading: "だつたんそぷれみあむ", icon: "💎" },
     { label: "脱炭素ロードマップ", reading: "だつたんそろーどまっぷ", icon: "🗺️" },
     { label: "グリーントランスフォーメーション", reading: "ぐりーんとらんすふぉーめーしょん", icon: "🔄" },
+    { label: "コーポレートPPA", reading: "こーぽれーとぴーぴーえー", icon: "📝" },
+    { label: "太陽光PPA", reading: "たいようこうぴーぴーえー", icon: "☀️" },
+    { label: "需給調整市場", reading: "じゅきゅうちょうせいしじょう", icon: "⚖️" },
+    { label: "卸市場", reading: "おろししじょう", icon: "🏪" },
+    { label: "環境価値取引", reading: "かんきょうかちとりひき", icon: "💱" },
+    { label: "電源属性", reading: "でんげんぞくせい", icon: "🏷️" },
+    { label: "追加性", reading: "ついかせい", icon: "➕" },
+    { label: "再エネ調達", reading: "さいえねちょうたつ", icon: "🛒" },
+    { label: "リスク分析", reading: "りすくぶんせき", icon: "📉" },
+    { label: "インバランス管理", reading: "いんばらんすかんり", icon: "⚖️" },
+    { label: "アービトラージ", reading: "あーびとらーじ", icon: "💱" },
+    { label: "市場価格予測", reading: "しじょうかかくよそく", icon: "💹" },
+    { label: "需給マッチング", reading: "じゅきゅうまっちんぐ", icon: "🤝" },
+    { label: "事業性評価", reading: "じぎょうせいひょうか", icon: "📊" },
+    { label: "収益シミュレーション", reading: "しゅうえきしみゅれーしょん", icon: "💹" },
   ];
 
   const COURSES = {
