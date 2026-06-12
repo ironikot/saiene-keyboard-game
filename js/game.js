@@ -27,11 +27,12 @@
   const FEVER_AT = 30;
 
   // エンドレスモード（制限時間制・寿司打方式）
-  // 回復 < 入力にかかる時間 になるよう渋めに設定（上手いほど長く延命できる）
-  const ENDLESS_TIME_CAP = 45000; // 持ち時間の上限
-  const CLEAR_TIME_BONUS = 800; // 1問クリアで +0.8秒
-  const PERFECT_TIME_BONUS = 1200; // その単語をノーミスならさらに +1.2秒（計 +2.0秒）
-  const TIMEBAR_FULL_MS = 30000; // 残り時間バーが満タン表示になる秒数
+  // 回復は単語の長さに比例させる。1打の入力には 0.15〜0.3秒 かかるため、
+  // どの速度で打っても持ち時間は必ず目減りする（上手いほど減りが緩い＝延命型）。
+  const ENDLESS_TIME_CAP = 35000; // 持ち時間の上限
+  const TIME_PER_KEY = 50; // ミスありクリア: 1打あたり +0.05秒
+  const TIME_PER_KEY_PERFECT = 100; // ノーミスクリア: 1打あたり +0.1秒
+  const TIMEBAR_FULL_MS = 20000; // 残り時間バーが満タン表示になる秒数
 
   // 1単語あたりの制限時間（ms）。コースが速いほど短くなる。
   function durationFor(totalKeys, speed) {
@@ -448,9 +449,9 @@
       const clearGain = Math.round(WORD_POWER * multiplierFor(s.combo)) + speedBonus;
       s.power += clearGain;
 
-      // エンドレス: クリアで持ち時間を回復（ノーミスならさらに加算）
+      // エンドレス: クリアで持ち時間を回復（単語の長さに比例。ノーミスなら2倍）
       if (this.endless) {
-        const tGain = CLEAR_TIME_BONUS + (this.wordPerfect ? PERFECT_TIME_BONUS : 0);
+        const tGain = this.word.totalKeys() * (this.wordPerfect ? TIME_PER_KEY_PERFECT : TIME_PER_KEY);
         this.timeLeft = Math.min(this.timeLeft + tGain, ENDLESS_TIME_CAP);
         this.renderTime();
         const tg = $("#time-gain");
