@@ -137,6 +137,7 @@ html, body {
   box-shadow: var(--shadow);
 }
 .hud-item { display: flex; flex-direction: column; line-height: 1.1; }
+.hud-item[hidden] { display: none; }
 .hud-label { font-size: 11px; color: var(--muted); }
 .hud-val { font-size: 16px; font-weight: 800; }
 .hud-val b { font-size: 18px; color: var(--green-dark); }
@@ -236,6 +237,15 @@ html, body {
   20% { opacity: 1; }
   100% { opacity: 0; transform: translate(-50%, -40px); }
 }
+
+/* エンドレスの時間回復ポップ（kWh ポップの少し上に出す） */
+.time-gain {
+  position: absolute; bottom: 156px; left: 80%;
+  transform: translateX(-50%);
+  font-weight: 900; font-size: 18px; color: #b8860b;
+  text-shadow: 0 2px 0 #fff; opacity: 0; pointer-events: none; z-index: 6;
+}
+.time-gain.show { animation: floatup 0.9s ease forwards; }
 
 /* ===== 入力エリア ===== */
 .typing { text-align: center; margin-top: 6px; }

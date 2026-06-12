@@ -26,6 +26,12 @@
   const EXTEND_MS = 1200;
   const FEVER_AT = 30;
 
+  // エンドレスモード（制限時間制・寿司打方式）
+  const ENDLESS_TIME_CAP = 90000; // 持ち時間の上限
+  const CLEAR_TIME_BONUS = 1500; // 1問クリアで +1.5秒
+  const PERFECT_TIME_BONUS = 1500; // その単語をノーミスならさらに +1.5秒
+  const TIMEBAR_FULL_MS = 60000; // 残り時間バーが満タン表示になる秒数
+
   // 1単語あたりの制限時間（ms）。コースが速いほど短くなる。
   function durationFor(totalKeys, speed) {
     return (1700 + totalKeys * 430) / speed;
@@ -101,6 +107,10 @@
     duration: 0,
     wordStart: 0,
     wordPower: 0, // いま打っている単語で稼いだ kWh（ポップ表示用）
+    wordPerfect: true, // いまの単語をノーミスで打てているか（時間ボーナス用）
+    endless: false,
+    timeLeft: 0, // エンドレスモードの残り持ち時間（ms）
+    lastTick: 0,
     gameStart: 0,
     raf: 0,
     countingDown: false,
@@ -173,11 +183,15 @@
       this.word = null;
       this.entry = null;
       this.wordPower = 0;
+      this.endless = !!conf.endless;
+      this.timeLeft = conf.time || 0;
       this.renderCombo(false);
       this.setFever(false);
 
       $("#hud-course").textContent = conf.name;
-      $("#hud-total").textContent = conf.count;
+      $("#hud-total").textContent = this.endless ? "∞" : conf.count;
+      $("#hud-time-box").hidden = !this.endless;
+      if (this.endless) this.renderTime();
       this.updateHud();
 
       this.show("game");
@@ -220,8 +234,13 @@
     nextWord() {
       cancelAnimationFrame(this.raf);
       if (this.qIndex >= this.queue.length) {
-        this.finish();
-        return;
+        if (this.endless) {
+          // エンドレスはお題を補充して続行
+          this.queue = this.queue.concat(shuffle(this.course.pool));
+        } else {
+          this.finish();
+          return;
+        }
       }
       const entry = this.queue[this.qIndex];
       this.qIndex += 1;
@@ -230,6 +249,7 @@
       this.duration = durationFor(this.word.totalKeys(), this.course.speed);
       this.wordStart = performance.now();
       this.wordPower = 0;
+      this.wordPerfect = true;
 
       // お皿の描画
       const plate = $("#plate");
@@ -261,18 +281,35 @@
     },
 
     loop() {
+      this.lastTick = performance.now();
       const step = () => {
         if (this.screen !== "game") return;
-        const elapsed = performance.now() - this.wordStart;
+        const now = performance.now();
+        const dt = Math.min(100, now - this.lastTick); // タブ非表示明けの一気減算を防ぐ
+        this.lastTick = now;
+
+        const elapsed = now - this.wordStart;
         const p = Math.min(1, elapsed / this.duration);
 
         // お皿の位置（右→左）
         const leftPct = 88 - 84 * p;
         $("#plate").style.left = leftPct + "%";
 
-        // 残り時間バー
-        $("#timebar-fill").style.width = (100 - p * 100) + "%";
-        $("#timebar-fill").classList.toggle("danger", p > 0.7);
+        if (this.endless) {
+          // 全体の持ち時間を減らす（バーと数字は持ち時間を表示）
+          this.timeLeft -= dt;
+          if (this.timeLeft <= 0) {
+            this.timeLeft = 0;
+            this.renderTime();
+            this.finish();
+            return;
+          }
+          this.renderTime();
+        } else {
+          // 通常コースは単語ごとの残り時間バー
+          $("#timebar-fill").style.width = (100 - p * 100) + "%";
+          $("#timebar-fill").classList.toggle("danger", p > 0.7);
+        }
 
         if (p >= 1) {
           this.timeout();
@@ -281,6 +318,13 @@
         this.raf = requestAnimationFrame(step);
       };
       this.raf = requestAnimationFrame(step);
+    },
+
+    renderTime() {
+      $("#hud-time").textContent = (this.timeLeft / 1000).toFixed(1);
+      const pct = Math.min(1, this.timeLeft / TIMEBAR_FULL_MS);
+      $("#timebar-fill").style.width = pct * 100 + "%";
+      $("#timebar-fill").classList.toggle("danger", this.timeLeft < 10000);
     },
 
     timeout() {
@@ -326,6 +370,7 @@
         if (res.finished) this.completeWord();
       } else {
         this.stats.missKeys += 1;
+        this.wordPerfect = false;
         this.breakCombo();
         Sound.miss();
         this.renderGuide(true);
@@ -357,9 +402,14 @@
       }
     },
 
-    // コンボ報酬: 進行中のお皿を押し戻す（締め切りを実質延長）
+    // コンボ報酬: エンドレスは持ち時間に加算、通常はお皿を押し戻す
     extendTime() {
-      this.wordStart = Math.min(this.wordStart + EXTEND_MS, performance.now());
+      if (this.endless) {
+        this.timeLeft = Math.min(this.timeLeft + EXTEND_MS, ENDLESS_TIME_CAP);
+        this.renderTime();
+      } else {
+        this.wordStart = Math.min(this.wordStart + EXTEND_MS, performance.now());
+      }
       Sound.extend();
       const ext = $("#time-ext");
       ext.classList.remove("show");
@@ -397,6 +447,19 @@
       const clearGain = Math.round(WORD_POWER * multiplierFor(s.combo)) + speedBonus;
       s.power += clearGain;
 
+      // エンドレス: クリアで持ち時間を回復（ノーミスならさらに加算）
+      if (this.endless) {
+        const tGain = CLEAR_TIME_BONUS + (this.wordPerfect ? PERFECT_TIME_BONUS : 0);
+        this.timeLeft = Math.min(this.timeLeft + tGain, ENDLESS_TIME_CAP);
+        this.renderTime();
+        const tg = $("#time-gain");
+        tg.textContent = "+" + (tGain / 1000).toFixed(1) + "秒" + (this.wordPerfect ? " ✨" : "");
+        tg.style.left = $("#plate").style.left;
+        tg.classList.remove("show");
+        void tg.offsetWidth;
+        tg.classList.add("show");
+      }
+
       Sound.word();
 
       // 「食べた（発電した）」演出
@@ -415,7 +478,7 @@
     },
 
     updateHud() {
-      $("#hud-index").textContent = Math.min(this.qIndex, this.course.count);
+      $("#hud-index").textContent = this.endless ? this.qIndex : Math.min(this.qIndex, this.course.count);
       $("#hud-correct").textContent = this.stats.correctKeys;
       $("#hud-miss").textContent = this.stats.missKeys;
       $("#hud-power").textContent = this.stats.power.toLocaleString();
@@ -452,7 +515,7 @@
       }
 
       $("#r-co2").textContent = co2 + " t-CO₂";
-      $("#r-done").textContent = s.wordsDone + " / " + this.course.count;
+      $("#r-done").textContent = this.endless ? s.wordsDone + " 問" : s.wordsDone + " / " + this.course.count;
       $("#r-missed").textContent = s.wordsMissed + " 問";
       $("#r-correct").textContent = s.correctKeys + " 打";
       $("#r-misskey").textContent = s.missKeys + " 打";
@@ -508,6 +571,9 @@
   function escapeHtml(str) {
     return str.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
+
+  // デバッグ・動作確認用のハンドル（スコアは localStorage のみなので公開しても実害なし）
+  window.SaieneGame = Game;
 
   document.addEventListener("DOMContentLoaded", () => Game.init());
 })();

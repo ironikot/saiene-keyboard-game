@@ -171,7 +171,8 @@
     easy: { name: "お手軽コース", desc: "10問・かんたん", count: 10, pool: EASY, speed: 1.0, power: 4000 },
     normal: { name: "お勧めコース", desc: "15問・ふつう", count: 15, pool: NORMAL.concat(EASY), speed: 1.25, power: 7000 },
     hard: { name: "達人コース", desc: "20問・むずかしい", count: 20, pool: HARD.concat(NORMAL), speed: 1.55, power: 12000 },
-    business: { name: "事業用語コース", desc: "18問・実戦", count: 18, pool: BUSINESS, speed: 1.2, power: 10000 },
+    // endless: 制限時間制。クリアで時間回復しつつ何問でも打てる（寿司打方式）
+    business: { name: "事業用語コース", desc: "エンドレス・実戦", count: 18, pool: BUSINESS, speed: 1.2, power: 10000, endless: true, time: 60000 },
   };
 
   global.Words = { EASY, NORMAL, HARD, BUSINESS, COURSES };
