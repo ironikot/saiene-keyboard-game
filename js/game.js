@@ -28,10 +28,10 @@
 
   // エンドレスモード（制限時間制・寿司打方式）
   // 回復 < 入力にかかる時間 になるよう渋めに設定（上手いほど長く延命できる）
-  const ENDLESS_TIME_CAP = 90000; // 持ち時間の上限
+  const ENDLESS_TIME_CAP = 45000; // 持ち時間の上限
   const CLEAR_TIME_BONUS = 800; // 1問クリアで +0.8秒
   const PERFECT_TIME_BONUS = 1200; // その単語をノーミスならさらに +1.2秒（計 +2.0秒）
-  const TIMEBAR_FULL_MS = 60000; // 残り時間バーが満タン表示になる秒数
+  const TIMEBAR_FULL_MS = 30000; // 残り時間バーが満タン表示になる秒数
 
   // 1単語あたりの制限時間（ms）。コースが速いほど短くなる。
   function durationFor(totalKeys, speed) {
