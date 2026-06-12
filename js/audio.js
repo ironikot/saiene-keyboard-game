@@ -44,11 +44,28 @@
     unlock() {
       ensure();
     },
-    type() {
-      beep(880, 40, "square", 0.04);
+    type(combo) {
+      // コンボが伸びるほど音程が上がる（気持ちよさポイント）
+      const freq = 760 + Math.min(combo || 0, 48) * 14;
+      beep(freq, 40, "square", 0.04);
     },
     miss() {
       beep(160, 120, "sawtooth", 0.07);
+    },
+    extend() {
+      // 時間延長のチャージ音
+      beep(1175, 90, "triangle", 0.06);
+      setTimeout(() => beep(1568, 130, "triangle", 0.06), 80);
+    },
+    fever() {
+      // フィーバー突入ジングル
+      beep(784, 90, "square", 0.05);
+      setTimeout(() => beep(988, 90, "square", 0.05), 90);
+      setTimeout(() => beep(1319, 160, "square", 0.05), 180);
+    },
+    record() {
+      // ハイスコア更新ファンファーレ
+      [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => beep(f, 150, "triangle", 0.07), i * 110));
     },
     word() {
       // 軽い上昇アルペジオ

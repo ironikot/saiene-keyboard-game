@@ -21,26 +21,30 @@
           <span class="course-emoji">🌱</span>
           <span class="course-name">お手軽コース</span>
           <span class="course-desc">10問・かんたん</span>
-          <span class="course-target">目標 3,000 kWh</span>
+          <span class="course-target">目標 4,000 kWh</span>
+          <span class="course-best" data-best="easy"></span>
         </button>
         <button class="course-card recommend" data-course="normal">
           <span class="badge">おすすめ</span>
           <span class="course-emoji">⚡</span>
           <span class="course-name">お勧めコース</span>
           <span class="course-desc">15問・ふつう</span>
-          <span class="course-target">目標 5,000 kWh</span>
+          <span class="course-target">目標 7,000 kWh</span>
+          <span class="course-best" data-best="normal"></span>
         </button>
         <button class="course-card" data-course="hard">
           <span class="course-emoji">👑</span>
           <span class="course-name">達人コース</span>
           <span class="course-desc">20問・むずかしい</span>
-          <span class="course-target">目標 10,000 kWh</span>
+          <span class="course-target">目標 12,000 kWh</span>
+          <span class="course-best" data-best="hard"></span>
         </button>
         <button class="course-card" data-course="business">
           <span class="course-emoji">🏢</span>
           <span class="course-name">事業用語コース</span>
           <span class="course-desc">18問・実戦</span>
-          <span class="course-target">目標 8,000 kWh</span>
+          <span class="course-target">目標 10,000 kWh</span>
+          <span class="course-best" data-best="business"></span>
         </button>
       </div>
 
@@ -50,6 +54,7 @@
           <li>ベルトコンベアで流れてくるお題（再エネ用語）を、画面下のローマ字どおりに入力します。</li>
           <li><b>事業用語コース</b>は脱炭素・再エネ調達まわりの事業用語から出題します。</li>
           <li>お皿が左端に届く前に打ち切ると「発電」成功。取り逃すと失点です。</li>
+          <li>ミスせず打ち続けると<b>コンボ</b>！ 倍率アップ（最大×3）＋20コンボごとにお皿が押し戻されます。速く打ち切るほど<b>スピードボーナス</b>も。</li>
           <li><code>し=shi/si</code>、<code>じゃ=ja/jya/zya</code> など複数のローマ字に対応。<code>っ</code>促音・<code>ー</code>長音もOK。</li>
           <li>入力は半角英数（IME はオフ）でどうぞ。</li>
         </ul>
@@ -76,6 +81,7 @@
 
         <div class="conveyor">
           <div class="sky"></div>
+          <div id="combo" class="combo"><b id="combo-n">0</b><span class="combo-label">COMBO</span><span id="combo-x" class="combo-x"></span></div>
           <div id="gain-pop" class="gain-pop"></div>
           <div id="plate" class="plate">
             <span id="plate-icon" class="plate-icon">☀️</span>
@@ -89,15 +95,19 @@
       </div>
 
       <div class="typing">
+        <div id="sparks" class="sparks"></div>
         <div id="reading" class="reading"></div>
         <div id="guide" class="guide"></div>
         <div class="timebar"><div id="timebar-fill" class="timebar-fill"></div></div>
+        <div id="time-ext" class="time-ext">⏱ コンボボーナス！ +1.2秒 延長</div>
       </div>
     </section>
 
     <!-- ===== リザルト画面 ===== -->
     <section id="screen-result" class="screen">
       <h2 class="result-title">結果発表 ⚡</h2>
+
+      <div id="r-record" class="record-banner">🎉 ハイスコア更新！ 🎉</div>
 
       <div class="rank-box">
         <div id="r-rank-icon" class="rank-icon">🏆</div>
@@ -121,7 +131,13 @@
         <div class="cell"><span class="cell-label">ミスタイプ</span><span id="r-misskey" class="cell-val">0</span></div>
         <div class="cell"><span class="cell-label">正確率</span><span id="r-acc" class="cell-val">0%</span></div>
         <div class="cell"><span class="cell-label">平均速度</span><span id="r-kps" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">最大コンボ</span><span id="r-maxcombo" class="cell-val">0</span></div>
         <div class="cell"><span class="cell-label">タイム</span><span id="r-time" class="cell-val">0秒</span></div>
+      </div>
+
+      <div class="ranking-box">
+        <h3 class="ranking-title">🏆 このコースのベスト5（この端末）</h3>
+        <div id="r-ranking"></div>
       </div>
 
       <div class="result-actions">
