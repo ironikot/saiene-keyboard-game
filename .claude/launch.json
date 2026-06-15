@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "saiene-da",
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["/Users/tokinorishimodaira/Desktop/outof-work/saiene-da/server.js"],
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["-m", "http.server", "4173"],
       "port": 4173
     }
   ]

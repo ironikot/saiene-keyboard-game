@@ -3,8 +3,8 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const ROOT = "/Users/tokinorishimodaira/Desktop/outof-work/saiene-da";
-const PORT = 4171;
+const ROOT = __dirname;
+const PORT = 4175;
 const TYPES = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
