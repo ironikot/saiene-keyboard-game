@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>再エネ打 スマホ版（β） — フリック入力</title>
+  <link rel="stylesheet" href="css/mobile.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== スタート ===== -->
+    <section id="screen-start" class="screen active">
+      <div class="hero">
+        <h1 class="title">再エネ打<span class="title-en">SAIENE&#8209;DA&nbsp;MOBILE</span></h1>
+        <p class="tagline">流れてくる再エネ用語を、<b>ひらがなフリック入力</b>で打って発電しよう！⚡</p>
+      </div>
+
+      <p class="beta-note">
+        📱 これはスマホ版のお試し（β）です。日本語の<b>かなキーボード（フリック）</b>で、表示された読みのとおりに打ってください。漢字に変換せず、ひらがなのままでOK。
+      </p>
+
+      <div class="courses">
+        <button class="course-card" data-course="easy">
+          <span class="course-emoji">🌱</span>
+          <span class="course-body">
+            <span class="course-name">お手軽コース</span>
+            <span class="course-desc">10問・かんたん</span>
+          </span>
+          <span class="course-target">目標 4,000 kWh</span>
+        </button>
+        <button class="course-card recommend" data-course="normal">
+          <span class="badge">おすすめ</span>
+          <span class="course-emoji">⚡</span>
+          <span class="course-body">
+            <span class="course-name">お勧めコース</span>
+            <span class="course-desc">15問・ふつう</span>
+          </span>
+          <span class="course-target">目標 7,000 kWh</span>
+        </button>
+        <button class="course-card" data-course="hard">
+          <span class="course-emoji">👑</span>
+          <span class="course-body">
+            <span class="course-name">達人コース</span>
+            <span class="course-desc">20問・むずかしい</span>
+          </span>
+          <span class="course-target">目標 12,000 kWh</span>
+        </button>
+      </div>
+
+      <div class="howto">
+        <h2>あそびかた</h2>
+        <ul>
+          <li>コースを選ぶと入力欄にカーソルが入り、スマホのキーボードが出ます。</li>
+          <li>画面中央の<b>読み（ひらがな）</b>のとおりに、かなキーボードで入力します。</li>
+          <li>お皿が工場（左端）に届く前に打ち切れば「発電」成功。取り逃すと失点です。</li>
+          <li>キーボードが消えたら、下の「キーボードを出す」を押してください。</li>
+        </ul>
+      </div>
+
+      <div class="start-foot">
+        <button id="sound-toggle" class="ghost-btn" aria-pressed="true">🔊 音あり</button>
+      </div>
+    </section>
+
+    <!-- ===== ゲーム ===== -->
+    <section id="screen-game" class="screen">
+      <header class="hud">
+        <div class="hud-item"><span class="hud-label">コース</span><span id="hud-course" class="hud-val">-</span></div>
+        <div class="hud-item"><span class="hud-label">お題</span><span class="hud-val"><b id="hud-index">0</b>/<span id="hud-total">0</span></span></div>
+        <div class="hud-item"><span class="hud-label">発電量</span><span class="hud-val"><b id="hud-power">0</b></span></div>
+        <div class="hud-item"><span class="hud-label">クリア</span><span id="hud-done" class="hud-val">0</span></div>
+        <div class="hud-item"><span class="hud-label">取逃</span><span id="hud-miss" class="hud-val">0</span></div>
+        <button id="quit" class="ghost-btn small">やめる</button>
+      </header>
+
+      <div class="stage" id="tap-to-type">
+        <div class="conveyor">
+          <div id="countdown" class="countdown"></div>
+          <div id="gain-pop" class="gain-pop"></div>
+          <div id="plate" class="plate">
+            <span id="plate-icon" class="plate-icon">☀️</span>
+            <span id="plate-label" class="plate-label"></span>
+          </div>
+          <div class="belt">
+            <div class="belt-stripes"></div>
+            <div class="goal">🏭</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="typing">
+        <div id="reading" class="reading"></div>
+        <div class="timebar"><div id="timebar-fill" class="timebar-fill"></div></div>
+      </div>
+
+      <div class="input-area">
+        <input
+          id="kana-input"
+          class="kana-input"
+          type="text"
+          lang="ja"
+          inputmode="text"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="ここに かな入力"
+          aria-label="かな入力欄"
+        />
+        <p class="input-hint">日本語の<b>かなキーボード</b>で、上の読みどおりに入力。<b>漢字変換は不要</b>です。</p>
+        <div id="debug-raw" class="debug-raw"></div>
+        <div class="focus-btn-wrap">
+          <button id="focus-btn" class="ghost-btn small">⌨️ キーボードを出す</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== リザルト ===== -->
+    <section id="screen-result" class="screen">
+      <h2 class="result-title">結果発表 ⚡</h2>
+
+      <div class="rank-box">
+        <div id="r-rank-icon" class="rank-icon">🏆</div>
+        <div class="rank-text">
+          <div id="r-rank-title" class="rank-title">-</div>
+          <div id="r-rank-msg" class="rank-msg">-</div>
+        </div>
+      </div>
+
+      <div class="power-box">
+        <div class="power-main"><span class="power-label">発電量</span><span id="r-power" class="power-val">0 kWh</span></div>
+        <div class="power-sub">目標 <span id="r-target">0 kWh</span></div>
+        <div id="r-balance" class="balance">-</div>
+        <div class="power-co2">削減した CO₂ ：<span id="r-co2">0 t-CO₂</span></div>
+      </div>
+
+      <div class="result-grid">
+        <div class="cell"><span class="cell-label">クリア問題</span><span id="r-done" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">取り逃し</span><span id="r-missed" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">正しく打った文字</span><span id="r-correct" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">ミス入力</span><span id="r-misskey" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">正確率</span><span id="r-acc" class="cell-val">0%</span></div>
+        <div class="cell"><span class="cell-label">平均速度</span><span id="r-kps" class="cell-val">0</span></div>
+        <div class="cell"><span class="cell-label">タイム</span><span id="r-time" class="cell-val">0秒</span></div>
+      </div>
+
+      <div class="result-actions">
+        <button id="again" class="primary-btn">もう一度（同じコース）</button>
+        <button id="to-menu" class="ghost-btn">コース選択へ</button>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="site-foot">
+    再エネ打 スマホ版（β） — フリック入力のお試し版です
+  </footer>
+
+  <script src="js/audio.js"></script>
+  <script src="js/words.js"></script>
+  <script src="js/mobile.js"></script>
+</body>
+</html>
