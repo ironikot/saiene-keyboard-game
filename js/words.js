@@ -169,7 +169,7 @@
 
   const COURSES = {
     easy: { name: "お手軽コース", desc: "10問・かんたん", count: 10, pool: EASY, speed: 1.0, power: 4000 },
-    normal: { name: "お勧めコース", desc: "15問・ふつう", count: 15, pool: NORMAL.concat(EASY), speed: 1.25, power: 7000 },
+    normal: { name: "中級コース", desc: "15問・ふつう", count: 15, pool: NORMAL.concat(EASY), speed: 1.25, power: 7000 },
     hard: { name: "達人コース", desc: "20問・むずかしい", count: 20, pool: HARD.concat(NORMAL), speed: 1.55, power: 12000 },
     // endless: 制限時間制。クリアで時間回復しつつ何問でも打てる（寿司打方式）
     // 全コースの単語を合算して出題（key は旧名の business のまま＝自己ベスト引き継ぎ）

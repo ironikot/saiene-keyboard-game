@@ -65,9 +65,6 @@
     return { title: "みならい", icon: "🔰", msg: "あわてず一文字ずつ。" };
   }
 
-  // スマホ版だけのコース表示名の上書き（PC版＝words.jsのnameは変えない）
-  const MOBILE_LABELS = { normal: "中級コース" };
-
   // エンドレス（持ち時間制）のスマホ用パラメータ。フリックは遅いのでPC版より緩め。
   // 回復は「かな1文字あたり」。回復 < 消費 になるよう渋めにして、上手いほど延命する設計。
   const ENDLESS_START_MS = 30000; // 開始時の持ち時間（30秒）
@@ -221,7 +218,7 @@
       this.timeLeft = this.endless ? ENDLESS_START_MS : 0;
       this.wordPerfect = true;
 
-      $("#hud-course").textContent = MOBILE_LABELS[courseKey] || conf.name;
+      $("#hud-course").textContent = conf.name;
       $("#hud-total").textContent = this.endless ? "∞" : conf.count;
       $("#hud-time-box").hidden = !this.endless;
       if (this.endless) this.renderTime();
