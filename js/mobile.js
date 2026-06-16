@@ -79,6 +79,8 @@
     playing: false,
     screen: "start",
     lastBuf: "",
+    consumed: 0, // 入力欄の値のうち、クリア済み単語が消化した「かな文字数」
+    composing: false, // IME変換（未確定）中か
     stats: null,
     input: null,
 
@@ -113,22 +115,24 @@
       // ゲーム画面の上半分をタップしてもキーボードを呼べるように
       $("#tap-to-type").addEventListener("click", () => this.focusInput());
 
-      // --- 入力イベント（composition と input の両方を拾い、handleBuffer 側で重複を吸収）
-      this.input.addEventListener("input", () => this.handleBuffer(this.input.value));
-      this.input.addEventListener("compositionupdate", (e) =>
-        this.handleBuffer(e.data != null ? e.data : this.input.value)
-      );
-      this.input.addEventListener("compositionend", (e) =>
-        this.handleBuffer(e.data != null ? e.data : this.input.value)
-      );
+      // --- 入力イベント
+      // iOS対策：照合は常に input.value を読む（value は触らない）。クリアは確定後だけ安全に行う。
+      this.input.addEventListener("compositionstart", () => {
+        this.composing = true;
+      });
+      this.input.addEventListener("compositionend", () => {
+        this.composing = false;
+        this.handleBuffer();
+        this.safeReset();
+      });
+      this.input.addEventListener("input", () => this.handleBuffer());
 
-      // デバッグ用：IMEが実際に送ってきている生文字列を画面に出す
+      // デバッグ用：入力欄の生の値とオフセットを画面に出す
       const dbg = $("#debug-raw");
-      const showRaw = (label, v) => {
-        dbg.textContent = label + "「" + (v || "") + "」→ " + normalizeKana(v || "");
-      };
-      this.input.addEventListener("input", () => showRaw("input", this.input.value));
-      this.input.addEventListener("compositionupdate", (e) => showRaw("comp", e.data || ""));
+      this.input.addEventListener("input", () => {
+        const full = normalizeKana(this.input.value);
+        dbg.textContent = "値「" + this.input.value + "」→ かな「" + full + "」消化:" + this.consumed;
+      });
 
       this.show("start");
     },
@@ -150,10 +154,18 @@
       this.input.focus();
     },
 
-    resetInput() {
+    // 入力欄を完全に初期化（ゲーム開始時など、安全なタイミングだけ呼ぶ）
+    clearAll() {
       this.lastBuf = "";
+      this.consumed = 0;
       this.input.value = "";
-      // ※ iOS で未確定文字が残る場合はここで blur→focus が必要になるかもしれない（要実機確認）
+    },
+
+    // iOSはフォーカス中に value を書き換えるとフォーカスが外れ、再タップが必要になる。
+    // そのため value を消すのは「変換が確定して未確定文字が無い瞬間」だけにする。
+    // 変換中はクリアせず、消化済みオフセット(consumed)で読み飛ばして照合を続ける。
+    safeReset() {
+      if (!this.composing) this.clearAll();
     },
 
     start(courseKey) {
@@ -170,7 +182,8 @@
       this.updateHud();
 
       this.show("game");
-      this.resetInput();
+      this.composing = false;
+      this.clearAll();
       this.focusInput();
 
       this.countdown(() => {
@@ -212,7 +225,7 @@
 
     nextWord() {
       cancelAnimationFrame(this.raf);
-      this.resetInput();
+      this.lastBuf = ""; // 入力欄(value)は消さない。クリアは safeReset 任せ
       if (this.qIndex >= this.queue.length) {
         this.finish();
         return;
@@ -247,17 +260,18 @@
       }
     },
 
-    // IME が送ってきた文字列を読みと照合
-    handleBuffer(raw) {
+    // 入力欄の値を読み、消化済みオフセットの先だけをお題と照合
+    handleBuffer() {
       if (!this.playing || !this.word) return;
-      const buf = normalizeKana(raw);
+      const full = normalizeKana(this.input.value);
+      const buf = full.slice(this.consumed); // 今のお題ぶんの入力
       if (buf === this.lastBuf) return;
       const grew = buf.length > this.lastBuf.length;
       this.lastBuf = buf;
 
       const target = this.word.reading;
       if (target.startsWith(buf)) {
-        Sound.type();
+        if (buf.length > 0) Sound.type();
         this.renderProgress(buf.length, false);
         this.updateHud();
         if (buf === target) this.completeWord();
@@ -291,6 +305,9 @@
 
     timeout() {
       cancelAnimationFrame(this.raf);
+      // 取り逃した単語に途中まで打った文字が、次の単語へ持ち越されないよう消化済みにする
+      this.consumed = normalizeKana(this.input.value).length;
+      this.safeReset();
       this.stats.wordsMissed += 1;
       Sound.miss();
       this.nextWord();
@@ -298,6 +315,7 @@
 
     completeWord() {
       cancelAnimationFrame(this.raf);
+      this.consumed += this.word.reading.length; // この単語ぶんを消化済みに
       this.stats.wordsDone += 1;
       this.stats.correctKana += this.word.reading.length;
       Sound.word();
