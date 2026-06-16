@@ -29,11 +29,10 @@
           </span>
           <span class="course-target">目標 4,000 kWh</span>
         </button>
-        <button class="course-card recommend" data-course="normal">
-          <span class="badge">おすすめ</span>
+        <button class="course-card" data-course="normal">
           <span class="course-emoji">⚡</span>
           <span class="course-body">
-            <span class="course-name">お勧めコース</span>
+            <span class="course-name">中級コース</span>
             <span class="course-desc">15問・ふつう</span>
           </span>
           <span class="course-target">目標 7,000 kWh</span>
@@ -46,6 +45,15 @@
           </span>
           <span class="course-target">目標 12,000 kWh</span>
         </button>
+        <button class="course-card recommend" data-course="business">
+          <span class="badge">おすすめ</span>
+          <span class="course-emoji">⏱️</span>
+          <span class="course-body">
+            <span class="course-name">エンドレスコース</span>
+            <span class="course-desc">全単語・時間勝負</span>
+          </span>
+          <span class="course-target">目標 10,000 kWh</span>
+        </button>
       </div>
 
       <div class="howto">
@@ -54,6 +62,7 @@
           <li>コースを選ぶと入力欄にカーソルが入り、スマホのキーボードが出ます。</li>
           <li>画面中央の<b>読み（ひらがな）</b>のとおりに、かなキーボードで入力します。</li>
           <li>お皿が工場（左端）に届く前に打ち切れば「発電」成功。取り逃すと失点です。</li>
+          <li><b>エンドレスコース</b>は持ち時間制。クリアするとかなの長さに応じて時間回復（ノーミスは多め）。回復より消費が多いので、時間が尽きるまでの勝負です。</li>
           <li>キーボードが消えたら、下の「キーボードを出す」を押してください。</li>
         </ul>
       </div>
@@ -69,6 +78,7 @@
       <header class="hud">
         <div class="hud-item"><span class="hud-label">コース</span><span id="hud-course" class="hud-val">-</span></div>
         <div class="hud-item"><span class="hud-label">お題</span><span class="hud-val"><b id="hud-index">0</b>/<span id="hud-total">0</span></span></div>
+        <div class="hud-item" id="hud-time-box" hidden><span class="hud-label">のこり</span><span class="hud-val"><b id="hud-time">0</b>秒</span></div>
         <div class="hud-item"><span class="hud-label">発電量</span><span class="hud-val"><b id="hud-power">0</b></span></div>
         <div class="hud-item"><span class="hud-label">クリア</span><span id="hud-done" class="hud-val">0</span></div>
         <div class="hud-item"><span class="hud-label">取逃</span><span id="hud-miss" class="hud-val">0</span></div>
@@ -79,6 +89,7 @@
         <div class="conveyor">
           <div id="countdown" class="countdown"></div>
           <div id="gain-pop" class="gain-pop"></div>
+          <div id="time-gain" class="time-gain"></div>
           <div id="plate" class="plate">
             <span id="plate-icon" class="plate-icon">☀️</span>
             <span id="plate-label" class="plate-label"></span>

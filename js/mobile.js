@@ -65,6 +65,18 @@
     return { title: "みならい", icon: "🔰", msg: "あわてず一文字ずつ。" };
   }
 
+  // スマホ版だけのコース表示名の上書き（PC版＝words.jsのnameは変えない）
+  const MOBILE_LABELS = { normal: "中級コース" };
+
+  // エンドレス（持ち時間制）のスマホ用パラメータ。フリックは遅いのでPC版より緩め。
+  // 回復は「かな1文字あたり」。回復 < 消費 になるよう渋めにして、上手いほど延命する設計。
+  const ENDLESS_START_MS = 30000; // 開始時の持ち時間（30秒）
+  const ENDLESS_CAP_MS = 45000; // 持ち時間の上限（45秒）
+  const ENDLESS_TIMEBAR_FULL = 30000; // バーが満タン表示になる持ち時間
+  // 回復はフリック最速（およそ0.3秒/かな）より十分小さくして、上手い人でも必ず目減りさせる。
+  const TIME_PER_KANA = 130; // ミスありクリア: かな1文字 +0.13秒
+  const TIME_PER_KANA_PERFECT = 230; // ノーミスクリア: かな1文字 +0.23秒
+
   const Game = {
     course: null,
     queue: [],
@@ -74,6 +86,10 @@
     duration: 0,
     wordStart: 0,
     gameStart: 0,
+    endless: false,
+    timeLeft: 0, // エンドレスの残り持ち時間（ms）
+    lastTick: 0,
+    wordPerfect: true, // いまの単語をノーミスで打てているか
     raf: 0,
     countingDown: false,
     playing: false,
@@ -201,9 +217,14 @@
       this.stats = { correctKana: 0, missKana: 0, wordsDone: 0, wordsMissed: 0 };
       this.word = null;
       this.entry = null;
+      this.endless = !!conf.endless;
+      this.timeLeft = this.endless ? ENDLESS_START_MS : 0;
+      this.wordPerfect = true;
 
-      $("#hud-course").textContent = conf.name;
-      $("#hud-total").textContent = conf.count;
+      $("#hud-course").textContent = MOBILE_LABELS[courseKey] || conf.name;
+      $("#hud-total").textContent = this.endless ? "∞" : conf.count;
+      $("#hud-time-box").hidden = !this.endless;
+      if (this.endless) this.renderTime();
       this.updateHud();
 
       this.show("game");
@@ -252,8 +273,12 @@
       cancelAnimationFrame(this.raf);
       this.lastBuf = ""; // クリアは completeWord/timeout の swapClear が担当
       if (this.qIndex >= this.queue.length) {
-        this.finish();
-        return;
+        if (this.endless) {
+          this.queue = this.queue.concat(shuffle(this.course.pool)); // お題を補充して続行
+        } else {
+          this.finish();
+          return;
+        }
       }
       const entry = this.queue[this.qIndex];
       this.qIndex += 1;
@@ -261,6 +286,7 @@
       this.word = { reading: normalizeKana(entry.reading) };
       this.duration = durationFor(this.word.reading.length, this.course.speed);
       this.wordStart = performance.now();
+      this.wordPerfect = true;
 
       const plate = $("#plate");
       plate.classList.remove("eaten");
@@ -305,6 +331,7 @@
         this.renderProgress(lcp, true);
         if (grew) {
           this.stats.missKana += 1;
+          this.wordPerfect = false;
           Sound.miss();
           this.updateHud();
         }
@@ -312,13 +339,33 @@
     },
 
     loop() {
+      this.lastTick = performance.now();
       const step = () => {
         if (this.screen !== "game" || !this.playing) return;
-        const elapsed = performance.now() - this.wordStart;
+        const now = performance.now();
+        const dt = Math.min(100, now - this.lastTick); // タブ非表示明けの一気減算を防ぐ
+        this.lastTick = now;
+
+        const elapsed = now - this.wordStart;
         const p = Math.min(1, elapsed / this.duration);
         $("#plate").style.left = 86 - 80 * p + "%";
-        $("#timebar-fill").style.width = 100 - p * 100 + "%";
-        $("#timebar-fill").classList.toggle("danger", p > 0.7);
+
+        if (this.endless) {
+          // 全体の持ち時間を減らす（バー・数字は持ち時間を表示）
+          this.timeLeft -= dt;
+          if (this.timeLeft <= 0) {
+            this.timeLeft = 0;
+            this.renderTime();
+            this.finish();
+            return;
+          }
+          this.renderTime();
+        } else {
+          // 通常コースは単語ごとの残り時間バー
+          $("#timebar-fill").style.width = 100 - p * 100 + "%";
+          $("#timebar-fill").classList.toggle("danger", p > 0.7);
+        }
+
         if (p >= 1) {
           this.timeout();
           return;
@@ -326,6 +373,13 @@
         this.raf = requestAnimationFrame(step);
       };
       this.raf = requestAnimationFrame(step);
+    },
+
+    renderTime() {
+      $("#hud-time").textContent = (this.timeLeft / 1000).toFixed(1);
+      const pct = Math.min(1, this.timeLeft / ENDLESS_TIMEBAR_FULL);
+      $("#timebar-fill").style.width = pct * 100 + "%";
+      $("#timebar-fill").classList.toggle("danger", this.timeLeft < 10000);
     },
 
     timeout() {
@@ -339,12 +393,26 @@
     completeWord() {
       cancelAnimationFrame(this.raf);
       this.swapClear(); // 入力欄を自動クリア（Enter・再タップ不要）
+      const n = this.word.reading.length;
       this.stats.wordsDone += 1;
-      this.stats.correctKana += this.word.reading.length;
+      this.stats.correctKana += n;
       Sound.word();
 
+      // エンドレス: クリアで持ち時間を回復（かな長に比例。ノーミスなら多め）
+      if (this.endless) {
+        const tGain = n * (this.wordPerfect ? TIME_PER_KANA_PERFECT : TIME_PER_KANA);
+        this.timeLeft = Math.min(this.timeLeft + tGain, ENDLESS_CAP_MS);
+        this.renderTime();
+        const tg = $("#time-gain");
+        tg.textContent = "+" + (tGain / 1000).toFixed(1) + "秒" + (this.wordPerfect ? " ✨" : "");
+        tg.style.left = $("#plate").style.left;
+        tg.classList.remove("show");
+        void tg.offsetWidth;
+        tg.classList.add("show");
+      }
+
       const plate = $("#plate");
-      const gain = this.word.reading.length * 60 + 150;
+      const gain = n * 60 + 150;
       const pop = $("#gain-pop");
       pop.textContent = "+" + gain.toLocaleString() + " kWh";
       pop.style.left = plate.style.left;
@@ -358,7 +426,7 @@
     },
 
     updateHud() {
-      $("#hud-index").textContent = Math.min(this.qIndex, this.course.count);
+      $("#hud-index").textContent = this.endless ? this.qIndex : Math.min(this.qIndex, this.course.count);
       $("#hud-power").textContent = this.earnedPower().toLocaleString();
       $("#hud-done").textContent = this.stats.wordsDone;
       $("#hud-miss").textContent = this.stats.wordsMissed;
@@ -399,7 +467,7 @@
         bal.className = "balance minus";
       }
       $("#r-co2").textContent = co2 + " t-CO₂";
-      $("#r-done").textContent = s.wordsDone + " / " + this.course.count;
+      $("#r-done").textContent = this.endless ? s.wordsDone + " 問" : s.wordsDone + " / " + this.course.count;
       $("#r-missed").textContent = s.wordsMissed + " 問";
       $("#r-correct").textContent = s.correctKana + " 文字";
       $("#r-misskey").textContent = s.missKana + " 回";

@@ -131,6 +131,12 @@ html, body {
   30% { opacity: 1; }
   100% { opacity: 0; transform: translateX(-50%) translateY(-22px); }
 }
+/* エンドレスの時間回復ポップ（発電ポップの少し下・水色） */
+.time-gain {
+  position: absolute; bottom: 72px; transform: translateX(-50%); opacity: 0;
+  font-weight: 900; color: #1d7ad1; font-size: 15px; text-shadow: 0 1px 0 #fff; pointer-events: none;
+}
+.time-gain.show { animation: pop-up 0.7s ease forwards; }
 
 .countdown {
   position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
