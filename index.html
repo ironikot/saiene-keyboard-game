@@ -2,6 +2,22 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    // スマホ端末は自動でスマホ版(mobile.html)へ振り分ける。
+    // ?pc=1 を付けて開く／一度PC版を選ぶと、それ以降は振り分けない。
+    (function () {
+      try {
+        var p = new URLSearchParams(location.search);
+        if (p.get("pc") === "1") { sessionStorage.setItem("saiene-prefer", "pc"); return; }
+        if (sessionStorage.getItem("saiene-prefer") === "pc") return;
+        var ua = navigator.userAgent || "";
+        var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+        var smallSide = Math.min(window.innerWidth, window.innerHeight) <= 820;
+        var phone = /Android|iPhone|iPod|Windows Phone|Mobile/i.test(ua) || (coarse && smallSide);
+        if (phone) location.replace("mobile.html");
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>再エネ打 — 再生可能エネルギー タイピングゲーム</title>
   <link rel="icon" href="favicon.ico" sizes="32x32" />
@@ -65,6 +81,7 @@
 
       <div class="start-foot">
         <button id="sound-toggle" class="ghost-btn" aria-pressed="true">🔊 音あり</button>
+        <a class="ghost-btn small" href="mobile.html" style="text-decoration:none; display:inline-block;">📱 スマホ版</a>
       </div>
     </section>
 
