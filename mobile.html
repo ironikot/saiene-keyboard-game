@@ -95,19 +95,35 @@
       </div>
 
       <div class="input-area">
-        <input
-          id="kana-input"
-          class="kana-input"
-          type="text"
-          lang="ja"
-          inputmode="text"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
-          placeholder="ここに かな入力"
-          aria-label="かな入力欄"
-        />
+        <!-- iOS対策：入力欄を2つ重ね、1単語ごとにフォーカスを片方へ移して自動クリアする -->
+        <div class="input-stack">
+          <input
+            id="kana-input"
+            class="kana-input active"
+            type="text"
+            lang="ja"
+            inputmode="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="ここに かな入力"
+            aria-label="かな入力欄"
+          />
+          <input
+            id="kana-input2"
+            class="kana-input"
+            type="text"
+            lang="ja"
+            inputmode="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            tabindex="-1"
+            aria-hidden="true"
+          />
+        </div>
         <p class="input-hint">日本語の<b>かなキーボード</b>で、上の読みどおりに入力。<b>漢字変換は不要</b>です。</p>
         <div id="debug-raw" class="debug-raw"></div>
         <div class="focus-btn-wrap">

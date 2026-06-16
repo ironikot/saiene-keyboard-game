@@ -157,11 +157,16 @@ html, body {
 /* 入力欄：IMEの日本語かなキーボードを出すための実フィールド。
    プロトタイプ中は「IMEが何を送ってきているか」を見たいので可視のままにしている。 */
 .input-area { margin-top: 12px; }
+/* 2つの入力欄を完全に重ねて、見た目は1つに見せる */
+.input-stack { position: relative; height: 50px; }
 .kana-input {
-  width: 100%; font-size: 22px; text-align: center; padding: 10px 12px;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  font-size: 22px; text-align: center; padding: 8px 12px;
   border: 2px solid var(--green); border-radius: 12px; background: #fff; color: var(--ink);
   font-family: inherit; letter-spacing: 0.05em;
+  opacity: 0; pointer-events: none; z-index: 1; /* 非アクティブは透明・裏 */
 }
+.kana-input.active { opacity: 1; pointer-events: auto; z-index: 2; }
 .kana-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,176,32,0.3); }
 .input-hint { font-size: 12px; color: #d8f5e3; text-align: center; margin: 6px 2px; line-height: 1.5; }
 .input-hint b { color: var(--sun); }
